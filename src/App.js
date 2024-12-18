@@ -190,20 +190,33 @@ const App = () => {
 
           <h3 className="text-lg font-semibold text-gray-700 mb-2">Contribution Details:</h3>
           <div className="space-y-4">
-            {data.user.contributionsCollection.contributionCalendar.weeks.map((week, index) => (
-              <div key={index} className="bg-gray-50 border border-gray-200 p-4 rounded">
-                <h4 className="font-semibold text-gray-700">Week {index + 1}</h4>
-                <ul className="list-disc pl-5">
-                  {week.contributionDays.map((day, dayIndex) => (
-                    <li key={dayIndex} className="text-sm text-gray-600">
-                      <span className="font-semibold">Date:</span> {day.date} |{" "}
-                      <span className="font-semibold">Contributions:</span> {day.contributionCount}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {data.user.contributionsCollection.contributionCalendar.weeks
+              .slice() // Create a shallow copy of the weeks array to avoid mutating the original data
+              .reverse() // Reverse the array so the latest weeks come first
+              .map((week, index) => {
+                // Calculate the week number based on the first day of the week
+                const firstDay = new Date(week.contributionDays[0].date);
+                const startOfYear = new Date(firstDay.getFullYear(), 0, 1);
+                const weekNumber = Math.ceil(
+                  ((firstDay - startOfYear) / (1000 * 60 * 60 * 24) + startOfYear.getDay() + 1) / 7
+                );
+
+                return (
+                  <div key={index} className="bg-gray-50 border border-gray-200 p-4 rounded">
+                    <h4 className="font-semibold text-gray-700">Week {weekNumber}</h4>
+                    <ul className="list-disc pl-5">
+                      {week.contributionDays.map((day, dayIndex) => (
+                        <li key={dayIndex} className="text-sm text-gray-600">
+                          <span className="font-semibold">Date:</span> {day.date} |{" "}
+                          <span className="font-semibold">Contributions:</span> {day.contributionCount}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
           </div>
+
         </div>
       )}
     </div>
